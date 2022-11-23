@@ -1,6 +1,7 @@
 package com.mostain.syed.ahmed.yourthoughts.service;
 
 import com.mostain.syed.ahmed.yourthoughts.dto.RegisterRequestDTO;
+import com.mostain.syed.ahmed.yourthoughts.exceptions.YourThoughtsException;
 import com.mostain.syed.ahmed.yourthoughts.model.NotificationEmail;
 import com.mostain.syed.ahmed.yourthoughts.model.User;
 import com.mostain.syed.ahmed.yourthoughts.model.VerificationToken;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -47,5 +49,19 @@ public class AuthService {
         verificationToken.setUser(user);
         verificationTokenRepository.save(verificationToken);
         return token;
+    }
+
+    public void verifyAccount(String token) {
+        Optional<VerificationToken> verificationToken = verificationTokenRepository.findByToken(token);
+        verificationToken.orElseThrow(() -> new YourThoughtsException("Invalid Token"));
+        fetchUserAndEnable(verificationToken.get());
+    }
+
+    @Transactional
+    public void fetchUserAndEnable(VerificationToken verificationToken) {
+        String username = verificationToken.getUser().getUsername();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new YourThoughtsException("User not found with name - " + username));
+        user.setEnabled(true);
+        userRepository.save(user);
     }
 }

@@ -1,5 +1,6 @@
 package com.mostain.syed.ahmed.yourthoughts.service;
 
+import com.mostain.syed.ahmed.yourthoughts.dto.LoginRequestDTO;
 import com.mostain.syed.ahmed.yourthoughts.dto.RegisterRequestDTO;
 import com.mostain.syed.ahmed.yourthoughts.exceptions.YourThoughtsException;
 import com.mostain.syed.ahmed.yourthoughts.model.NotificationEmail;
@@ -8,6 +9,8 @@ import com.mostain.syed.ahmed.yourthoughts.model.VerificationToken;
 import com.mostain.syed.ahmed.yourthoughts.repository.UserRepository;
 import com.mostain.syed.ahmed.yourthoughts.repository.VerificationTokenRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +26,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailService mailService;
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public void signup(RegisterRequestDTO registerRequestDTO){
@@ -63,5 +67,12 @@ public class AuthService {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new YourThoughtsException("User not found with name - " + username));
         user.setEnabled(true);
         userRepository.save(user);
+    }
+
+    public void login(LoginRequestDTO loginRequestDTO) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                loginRequestDTO.getUsername(), loginRequestDTO.getPassword()));
+
+
     }
 }

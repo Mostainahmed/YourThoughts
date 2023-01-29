@@ -1,5 +1,6 @@
 package com.mostain.syed.ahmed.yourthoughts.controller;
 
+import com.mostain.syed.ahmed.yourthoughts.dto.LoginRequestDTO;
 import com.mostain.syed.ahmed.yourthoughts.dto.RegisterRequestDTO;
 import com.mostain.syed.ahmed.yourthoughts.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -23,5 +24,10 @@ public class AuthController {
         authService.verifyAccount(token);
         return new ResponseEntity<>("User Activation Successful",
                 HttpStatus.OK);
+    }
+
+    @PostMapping("/login")
+    public void login(@RequestBody LoginRequestDTO loginRequestDTO){
+        authService.login(loginRequestDTO);
     }
 }
